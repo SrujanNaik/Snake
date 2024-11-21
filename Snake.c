@@ -20,13 +20,78 @@ int main(){
 	srand(time(0));
 	display();
 	create_map();
+	snake();
 
 	endwin();
 	return 0;
 }
 
+void snake(){
+	int x = 1,y = 1;
+	move(y,x);
+	printw("0");
+	refresh();
+	bool gameover = 1;
+	int previous = KEY_RIGHT;
+	int ch;
+
+	while(gameover){
+		timeout(1000);
+		ch = getch();
+		if(ch != ERR){
+			if(ch == KEY_LEFT){
+				x--;
+				if(x < 1) x = col-2;
+				mvprintw(y,x,"0");
+			}
+			else if(ch == KEY_RIGHT){
+				x++;
+				if(x > col - 2) x = 1;
+				mvprintw(y,x,"0");
+			}
+			else if(ch == KEY_UP){
+				y--;
+				if(y < 1) y = row-2;
+				mvprintw(y,x,"0");
+			}
+			else if(ch == KEY_DOWN){
+				y++;
+				if(y > row-2) y = 1;
+				mvprintw(y,x,"0");
+			}
+			previous = ch;
+			refresh();
+		}
+		else{
+			if(previous == KEY_LEFT){
+				x--;
+				if(x < 1) x = col-2;
+				mvprintw(y,x,"0");
+			}
+			else if(previous == KEY_RIGHT){
+				x++;
+				if(x > col - 2) x = 1;
+				mvprintw(y,x,"0");
+			}
+			else if(previous == KEY_UP){
+				y--;
+				if(y < 1) y = row-2;
+				mvprintw(y,x,"0");
+			}
+			else if(previous == KEY_DOWN){
+				y++;
+				if(y > row-2) y = 1;
+				mvprintw(y,x,"0");
+			}
+			refresh();
+		}
+
+	}
+
+	getch();
+}
+
 void display(){
-	timeout(1000);
 	int x = 0;
 	int y = 0;
 
@@ -36,7 +101,6 @@ void display(){
 	refresh();
 	wrefresh(win);
 
-	getch();
 	refresh();
 }
 
@@ -55,3 +119,16 @@ void create_map(){
 	
 	fclose(file);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
