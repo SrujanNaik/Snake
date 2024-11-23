@@ -6,14 +6,16 @@
 #define col 64
 
 struct snake_body {
-	struct snake_body* left;
-	struct snake_body* right;
+	int x;
+	int y;
+	struct snake_body* previous;
+	struct snake_body* next;
 };
 
 void display();
 void snake(struct snake_body**);
-void snake_body(struct snake_body**,int,int);
-void food_and_gameover();
+void snake_length(struct snake_body**);
+void snake_print(struct snake_body**,int,int);
 
 int main(){
 	struct snake_body* head = NULL;
@@ -31,16 +33,26 @@ int main(){
 	return 0;
 }
 
-
-void snake_body(struct snake_body** head,int x,int y){
+void snake_print(struct snake_body** head,int x,int y){
 	struct snake_body* temp = *head;
-	if(temp->left == NULL){
-		mvprintw(y,x,"0");
+	if(temp->previous == NULL){
+		temp->y = y;
+		temp->x = x;
+		mvprintw(temp->y,temp->x,"0");
 	}
-	while(temp->left != NULL){
-		mvprintw(y,x,"0");
-		temp = temp->left;
+	temp->y = y;
+	temp->x = x;
+	while(temp->previous != NULL){
+		temp = temp->previous;
 	}
+	mvaddch(temp->y,temp->x,' ');
+	while(temp->next != NULL){
+		temp->x = temp->next->x;
+		temp->y = temp->next->y;
+		mvprintw(temp->y,temp->x,"0");
+		temp = temp->next;
+	}
+
 }
 
 void snake(struct snake_body** head){
@@ -52,12 +64,15 @@ void snake(struct snake_body** head){
 
 	struct snake_body* h;
 	h = malloc(sizeof(struct snake_body*));
-	h->right = NULL;
-	h->left = NULL;
+	h->x = x;
+	h->x = y;
+	h->next = NULL;
+	h->previous = NULL;
 
 	*head = h;
-	int food_location_y = rand()%row-1;
-	int food_location_x = rand()%col-1;
+	//initial food location
+	int food_location_y = 1;
+	int food_location_x = 2;
 	int previousX = food_location_x;
 	int previousY = food_location_y;
 	if(food_location_x == 0 || food_location_x == -1) food_location_x = 1;
@@ -72,61 +87,54 @@ void snake(struct snake_body** head){
 
 		if(ch != ERR){
 			if(ch == KEY_LEFT){
-				mvaddch(y,x,' ');
 				x--;
 				if(x < 1) x = col-2;
-				snake_body(head,x,y);
+				snake_print(head,x,y);
 			}
 			else if(ch == KEY_RIGHT){
-				mvaddch(y,x,' ');
 				x++;
 				if(x > col - 2) x = 1;
-				snake_body(head,x,y);
+				snake_print(head,x,y);
 			}
 			else if(ch == KEY_UP){
-				mvaddch(y,x,' ');
 				y--;
 				if(y < 1) y = row-2;
-				snake_body(head,x,y);
+				snake_print(head,x,y);
 			}
 			else if(ch == KEY_DOWN){
-				mvaddch(y,x,' ');
 				y++;
 				if(y > row-2) y = 1;
-				snake_body(head,x,y);
+				snake_print(head,x,y);
 			}
 			previous = ch;
 			refresh();
 		}
 		else{
 			if(previous == KEY_LEFT){
-				mvaddch(y,x,' ');
 				x--;
 				if(x < 1) x = col-2;
-				snake_body(head,x,y);
+				snake_print(head,x,y);
 			}
 			else if(previous == KEY_RIGHT){
-				mvaddch(y,x,' ');
 				x++;
 				if(x > col - 2) x = 1;
-				snake_body(head,x,y);
+				snake_print(head,x,y);
 			}
 			else if(previous == KEY_UP){
-				mvaddch(y,x,' ');
 				y--;
 				if(y < 1) y = row-2;
-				snake_body(head,x,y);
+				snake_print(head,x,y);
 			}
 			else if(previous == KEY_DOWN){
-				mvaddch(y,x,' ');
 				y++;
 				if(y > row-2) y = 1;
-				snake_body(head,x,y);
+				snake_print(head,x,y);
 			}
 			refresh();
 		}
 		move(0,66);
-		printw("%d",previousX);
+		printw("%d,%d",h->x,h->y);
+		//update food loaction after consumption
 		if(previousX == x && previousY == y){
 			int food_location_y = rand()%row-1;
 			int food_location_x = rand()%col-1;
@@ -137,11 +145,25 @@ void snake(struct snake_body** head){
 			move(food_location_y,food_location_x);
 			printw("*");
 			refresh();
+			snake_length(head);
 		}
 		refresh();
 
 	}
 	getch();
+}
+
+void snake_length(struct snake_body** head){
+	struct snake_body* newnode = (struct snake_body*)malloc(sizeof(struct snake_body));
+	newnode->next = NULL;
+	newnode->previous = NULL;
+
+	struct snake_body* temp = *head;
+	while(temp->previous != NULL){
+		temp = temp->previous;
+	}
+	temp->previous = newnode;
+	newnode->next = temp;
 }
 
 void display(){
