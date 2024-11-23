@@ -2,7 +2,7 @@
 
 A classic Snake game 
 
-# Status of the game
+## Status of the game
 - Game is working as expected
 - refing is need to smooth out the experince
 ## bugs
@@ -20,5 +20,5 @@ A classic Snake game
         - Moving entire snake body is very easy
         - Detection of Collision against snake body
 
-##Things learned
+### Things learned
 - Ncurses,Linked List,Debuging,Bug Fixing,...
