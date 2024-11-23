@@ -11,10 +11,9 @@ struct snake_body {
 };
 
 void display();
-void create_map();
 void snake(struct snake_body**);
 void snake_body(struct snake_body**,int,int);
-void food_placement();
+void food_and_gameover();
 
 int main(){
 	struct snake_body* head = NULL;
@@ -26,12 +25,12 @@ int main(){
 
 	srand(time(0));
 	display();
-	create_map();
 	snake(&head);
 
 	endwin();
 	return 0;
 }
+
 
 void snake_body(struct snake_body** head,int x,int y){
 	struct snake_body* temp = *head;
@@ -57,10 +56,20 @@ void snake(struct snake_body** head){
 	h->left = NULL;
 
 	*head = h;
+	int food_location_y = rand()%row-1;
+	int food_location_x = rand()%col-1;
+	int previousX = food_location_x;
+	int previousY = food_location_y;
+	if(food_location_x == 0 || food_location_x == -1) food_location_x = 1;
+	if(food_location_y == 0 || food_location_y == -1) food_location_y = 1;
+	move(food_location_y,food_location_x);
+	printw("*");
+	refresh();
 
 	while(gameover){
 		timeout(1000);
 		ch = getch();
+
 		if(ch != ERR){
 			if(ch == KEY_LEFT){
 				mvaddch(y,x,' ');
@@ -116,9 +125,22 @@ void snake(struct snake_body** head){
 			}
 			refresh();
 		}
+		move(0,66);
+		printw("%d",previousX);
+		if(previousX == x && previousY == y){
+			int food_location_y = rand()%row-1;
+			int food_location_x = rand()%col-1;
+			if(food_location_x == 0 || food_location_x == -1) food_location_x = 1;
+			if(food_location_y == 0 || food_location_y == -1) food_location_y = 1;
+			previousX = food_location_x;
+			previousY = food_location_y;
+			move(food_location_y,food_location_x);
+			printw("*");
+			refresh();
+		}
+		refresh();
 
 	}
-
 	getch();
 }
 
@@ -135,21 +157,6 @@ void display(){
 	refresh();
 }
 
-void create_map(){
-	FILE *file = fopen("map.txt","a");
-	if(file == NULL){
-		printw("Game not loaded");
-		exit(0);
-	}
-
-	for(int i = 0;i < row;i++){
-		for(int j = 0;j < col;j++){
-			fprintf(file,"*");
-		}
-	}
-	
-	fclose(file);
-}
 
 
 
