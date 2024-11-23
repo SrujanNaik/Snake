@@ -15,7 +15,7 @@ struct snake_body {
 void display();
 void snake(struct snake_body**);
 void snake_length(struct snake_body**);
-void snake_print(struct snake_body**,int,int);
+void snake_print(struct snake_body**,int,int,int);
 
 int main(){
 	struct snake_body* head = NULL;
@@ -33,7 +33,7 @@ int main(){
 	return 0;
 }
 
-void snake_print(struct snake_body** head,int x,int y){
+void snake_print(struct snake_body** head,int x,int y,int score){
 	struct snake_body* temp = *head;
 	if(temp->previous == NULL){
 		temp->y = y;
@@ -44,6 +44,16 @@ void snake_print(struct snake_body** head,int x,int y){
 	temp->x = x;
 	while(temp->previous != NULL){
 		temp = temp->previous;
+		if(temp->x == x&&temp->y ==y){
+			clear();
+			move(0,0);
+			printw("game over");
+			move(1,0);
+			printw("Your score : %d",score);
+			getch();
+			endwin();
+			exit(0);
+		}
 	}
 	mvaddch(temp->y,temp->x,' ');
 	while(temp->next != NULL){
@@ -81,6 +91,7 @@ void snake(struct snake_body** head){
 	printw("*");
 	refresh();
 
+	int score = 0;
 	while(gameover){
 		timeout(1000);
 		ch = getch();
@@ -89,22 +100,22 @@ void snake(struct snake_body** head){
 			if(ch == KEY_LEFT){
 				x--;
 				if(x < 1) x = col-2;
-				snake_print(head,x,y);
+				snake_print(head,x,y,score);
 			}
 			else if(ch == KEY_RIGHT){
 				x++;
 				if(x > col - 2) x = 1;
-				snake_print(head,x,y);
+				snake_print(head,x,y,score);
 			}
 			else if(ch == KEY_UP){
 				y--;
 				if(y < 1) y = row-2;
-				snake_print(head,x,y);
+				snake_print(head,x,y,score);
 			}
 			else if(ch == KEY_DOWN){
 				y++;
 				if(y > row-2) y = 1;
-				snake_print(head,x,y);
+				snake_print(head,x,y,score);
 			}
 			previous = ch;
 			refresh();
@@ -113,27 +124,25 @@ void snake(struct snake_body** head){
 			if(previous == KEY_LEFT){
 				x--;
 				if(x < 1) x = col-2;
-				snake_print(head,x,y);
+				snake_print(head,x,y,score);
 			}
 			else if(previous == KEY_RIGHT){
 				x++;
 				if(x > col - 2) x = 1;
-				snake_print(head,x,y);
+				snake_print(head,x,y,score);
 			}
 			else if(previous == KEY_UP){
 				y--;
 				if(y < 1) y = row-2;
-				snake_print(head,x,y);
+				snake_print(head,x,y,score);
 			}
 			else if(previous == KEY_DOWN){
 				y++;
 				if(y > row-2) y = 1;
-				snake_print(head,x,y);
+				snake_print(head,x,y,score);
 			}
 			refresh();
 		}
-		move(0,66);
-		printw("%d,%d",h->x,h->y);
 		//update food loaction after consumption
 		if(previousX == x && previousY == y){
 			int food_location_y = rand()%row-1;
@@ -144,9 +153,12 @@ void snake(struct snake_body** head){
 			previousY = food_location_y;
 			move(food_location_y,food_location_x);
 			printw("*");
-			refresh();
 			snake_length(head);
+			score++;
+			refresh();
 		}
+		move(0,66);
+		printw("%d",score);
 		refresh();
 
 	}
